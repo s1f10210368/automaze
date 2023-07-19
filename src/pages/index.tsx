@@ -35,6 +35,7 @@ const Home = () => {
   const puttoweraroundodd = () => {
     const startCells = maketoweratodd();
     const updatemaze = [...maze];
+    console.table(startCells);
     for (const startCell of startCells) {
       const [x, y] = startCell;
 
@@ -57,7 +58,7 @@ const Home = () => {
   return (
     <div className={styles.container}>
       {['生成'].map((v) => (
-        <li onClick={maketoweratodd} key={v}>
+        <li onClick={puttoweraroundodd} key={v}>
           {v}
         </li>
       ))}
