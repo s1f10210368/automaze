@@ -3,11 +3,15 @@ import styles from './index.module.css';
 
 const Home = () => {
   const [maze, setMaze] = useState([
-    [0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
   ]);
 
   const front = [
@@ -35,7 +39,6 @@ const Home = () => {
   const puttoweraroundodd = () => {
     const startCells = maketoweratodd();
     const updatemaze = [...maze];
-    console.table(startCells);
     for (const startCell of startCells) {
       const [x, y] = startCell;
 
@@ -48,7 +51,7 @@ const Home = () => {
       const newX = x + dx;
       const newY = y + dy;
 
-      if (newX >= 0 && newX < maze.length && newY >= 0 && newY < maze[0].length) {
+      if (newX < maze.length && newY < maze[0].length) {
         updatemaze[newX][newY] = 1;
       }
     }
