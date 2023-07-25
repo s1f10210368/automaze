@@ -21,6 +21,13 @@ const Home = () => {
     [-1, 0],
   ];
 
+  const [human, setHuman] = useState({
+    x: 0,
+    y: 0,
+    //初期値下向き
+    front: [1, 0],
+  });
+
   const maketoweratodd = () => {
     const startCells: number[][] = [];
     for (let x = 0; x < maze.length; x++) {
