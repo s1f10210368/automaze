@@ -1,18 +1,9 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import styles from './index.module.css';
 
 const Home = () => {
-  const [maze, setMaze] = useState([
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-  ]);
+  const initialMaze = Array.from({ length: 51 }, () => Array(51).fill(0));
+  const [maze, setMaze] = useState<number[][]>(initialMaze);
 
   const front = [
     [0, 1], //right
@@ -35,7 +26,7 @@ const Home = () => {
     return false;
   };
 
-  const movehuman = () => {
+  const movehuman = useCallback(() => {
     const right = rightdirection();
     // 右側の値を確認
     if (right[0] !== 0) {
@@ -44,10 +35,12 @@ const Home = () => {
     } else {
       changedirectionleftright(right[1]);
     }
-  };
+    checkgoal();
+  }, [human];
 
   const checkupdown = (num: number) => {
-    if (human.x + num < 0 || human.x + num > 8 || maze[human.x + num][human.y] === 1) {
+    //上下の確認
+    if (human.x + num < 0 || human.x + num > 50 || maze[human.x + num][human.y] === 1) {
       return true;
     }
     return false;
@@ -59,12 +52,12 @@ const Home = () => {
       checkfront();
     } else {
       // 向きの変更
-      sethuman({ x: human.x, y: human.y, front: rightdirection() });
+      sethuman({ x: human.x + num, y: human.y, front: rightdirection() });
     }
   };
 
   const checkleftright = (num: number) => {
-    if (human.y + num < 0 || human.y + num > 8 || maze[human.x][human.y + num] === 1) {
+    if (human.y + num < 0 || human.y + num > 50 || maze[human.x][human.y + num] === 1) {
       return true;
     }
     return false;
@@ -76,7 +69,7 @@ const Home = () => {
       checkfront();
     } else {
       // 向きの変更
-      sethuman({ x: human.x, y: human.y, front: rightdirection() });
+      sethuman({ x: human.x, y: human.y + num, front: rightdirection() });
     }
   };
 
@@ -129,6 +122,12 @@ const Home = () => {
     }
   };
 
+  const checkgoal = () => {
+    if (human.x === 50 && human.y === 50) {
+      alert('Goal!');
+    }
+  };
+
   const maketoweratodd = () => {
     const startCells: number[][] = [];
     for (let x = 0; x < maze.length; x++) {
@@ -166,19 +165,28 @@ const Home = () => {
     setMaze(updatemaze);
   };
 
+  const [searching, setSearching] = useState(false); // 探索中かどうかの状態を追加
+
+  // useEffectを使用して探索を実行し、結果を反映
+  useEffect(() => {
+    if (searching) {
+      const interval = setInterval(() => {
+        movehuman();
+        if (human.x === maze.length - 1 && human.y === maze[0].length - 1) {
+          setSearching(false);
+        }
+      }, 35);
+      return () => {
+        clearInterval(interval);
+      };
+    }
+  }, [searching, human.x, human.y, maze, movehuman]);
+
   return (
     <div className={styles.container}>
-      {['生成'].map((v) => (
-        <li onClick={puttoweraroundodd} key={v}>
-          {v}
-        </li>
-      ))}
-      {['探索'].map((v) => (
-        <li onClick={movehuman} key={v}>
-          {v}
-        </li>
-      ))}
-
+      <button onClick={() => puttoweraroundodd()}>生成</button>
+      <button onClick={() => puttoweraroundodd()}>探索</button>
+      <button onClick={() => setSearching(true)}>自動探索</button>
       <div className={styles.maze}>
         {maze.map((row, x) =>
           row.map((cell, y) => (
@@ -205,5 +213,3 @@ const Home = () => {
 };
 
 export default Home;
-
-a;
