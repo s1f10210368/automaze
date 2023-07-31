@@ -36,7 +36,7 @@ const Home = () => {
       changedirectionleftright(right[1]);
     }
     checkgoal();
-  }, [human];
+  }, [human]);
 
   const checkupdown = (num: number) => {
     //上下の確認
@@ -185,7 +185,7 @@ const Home = () => {
   return (
     <div className={styles.container}>
       <button onClick={() => puttoweraroundodd()}>生成</button>
-      <button onClick={() => puttoweraroundodd()}>探索</button>
+      <button onClick={() => movehuman()}>探索</button>
       <button onClick={() => setSearching(true)}>自動探索</button>
       <div className={styles.maze}>
         {maze.map((row, x) =>
