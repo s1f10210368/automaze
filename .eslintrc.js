@@ -38,7 +38,7 @@ module.exports = {
     '@typescript-eslint/strict-boolean-expressions': 'error',
     complexity: ['error', 10],
     'max-depth': ['error', 3],
-    'max-nested-callbacks': ['error', 3],
-    'max-lines': ['error', 300],
+    'max-nested-callbacks': ['error', 2],
+    'max-lines': ['error', 220],
   },
 };

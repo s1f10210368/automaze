@@ -12,7 +12,7 @@
   position: relative;
   width: 540px;
   height: 540px;
-  background-color: rgb(183 183 183);
+  background-color: whitesmoke;
   display: grid;
   grid-template-columns: repeat(51, minmax(0, 1fr));
   grid-template-rows: repeat(51, minmax(0, 1fr));
@@ -21,6 +21,7 @@
 .cell {
   width: 100%;
   height: 100%;
+  border: 0.01px solid white;
   position: relative;
   cursor: pointer;
 }
@@ -28,7 +29,7 @@
 .pillar {
   width: 100%;
   height: 100%;
-  background-color: rgb(1 3 6);
+  background-color: grey;
 }
 
 .button {
@@ -37,4 +38,14 @@
   padding: 0.8rem;
   border-radius: 0.4rem;
   cursor: pointer;
+}
+
+.koma {
+  font-size: 100%; /* フォントサイズをリセット */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  /* お好みのサイズや調整を追加 */
 }

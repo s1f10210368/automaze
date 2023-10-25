@@ -15,7 +15,6 @@ const Home = () => {
   const [human, sethuman] = useState({
     x: 0,
     y: 0,
-    //初期値下向き
     front: [1, 0],
   });
 
@@ -26,54 +25,7 @@ const Home = () => {
     return false;
   };
 
-  const movehuman = useCallback(() => {
-    const right = rightdirection();
-    // 右側の値を確認
-    if (right[0] !== 0) {
-      //進行方向が上下どちらかの場合
-      changedirectionupdown(right[0]);
-    } else {
-      changedirectionleftright(right[1]);
-    }
-    checkgoal();
-  }, [human]);
-
-  const checkupdown = (num: number) => {
-    //上下の確認
-    if (human.x + num < 0 || human.x + num > 50 || maze[human.x + num][human.y] === 1) {
-      return true;
-    }
-    return false;
-  };
-
-  const changedirectionupdown = (num: number) => {
-    if (checkupdown(num)) {
-      // 壁だよ
-      checkfront();
-    } else {
-      // 向きの変更
-      sethuman({ x: human.x + num, y: human.y, front: rightdirection() });
-    }
-  };
-
-  const checkleftright = (num: number) => {
-    if (human.y + num < 0 || human.y + num > 50 || maze[human.x][human.y + num] === 1) {
-      return true;
-    }
-    return false;
-  };
-
-  const changedirectionleftright = (num: number) => {
-    if (checkleftright(num)) {
-      // 壁だよ
-      checkfront();
-    } else {
-      // 向きの変更
-      sethuman({ x: human.x, y: human.y + num, front: rightdirection() });
-    }
-  };
-
-  const rightdirection = () => {
+  const rightdirection = useCallback(() => {
     if (JSON.stringify(human.front) === JSON.stringify([0, 1])) {
       // 右が正面の場合、下
       return [1, 0];
@@ -87,9 +39,24 @@ const Home = () => {
       // 上が正面の場合、右
       return [0, 1];
     }
-  };
+  }, [human.front]);
 
-  const changedirection = () => {
+  const checkupdown = useCallback(
+    (num: number) => {
+      //上下の確認
+      return human.x + num < 0 || human.x + num > 50 || maze[human.x + num][human.y] === 1;
+    },
+    [human.x, maze, human.y]
+  );
+
+  const checkleftright = useCallback(
+    (num: number) => {
+      return human.y + num < 0 || human.y + num > 50 || maze[human.x][human.y + num] === 1;
+    },
+    [human.y, maze, human.x]
+  );
+
+  const changedirection = useCallback(() => {
     if (JSON.stringify(human.front) === JSON.stringify([0, 1])) {
       // 右が正面の場合、上
       sethuman({ x: human.x, y: human.y, front: [-1, 0] });
@@ -103,30 +70,66 @@ const Home = () => {
       // 上が正面の場合、左
       sethuman({ x: human.x, y: human.y, front: [0, -1] });
     }
-  };
+  }, [human, sethuman]);
 
-  const checkfront = () => {
+  const checkfront = useCallback(() => {
     // 正面の確認
     if (human.front[0] !== 0) {
-      if (checkupdown(human.front[0]) === false) {
+      if (!checkupdown(human.front[0])) {
         sethuman({ x: human.x + human.front[0], y: human.y, front: human.front });
       } else {
         changedirection();
       }
     } else {
-      if (checkleftright(human.front[1]) === false) {
+      if (!checkleftright(human.front[1])) {
         sethuman({ x: human.x, y: human.y + human.front[1], front: human.front });
       } else {
         changedirection();
       }
     }
-  };
+  }, [checkupdown, checkleftright, changedirection, human.x, human.y, human.front]);
 
-  const checkgoal = () => {
+  const changedirectionleftright = useCallback(
+    (num: number) => {
+      if (checkleftright(num)) {
+        // 壁だよ
+        checkfront();
+      } else {
+        // 向きの変更
+        sethuman({ x: human.x, y: human.y + num, front: rightdirection() });
+      }
+    },
+    [checkfront, checkleftright, human.x, human.y, rightdirection]
+  );
+
+  const changedirectionupdown = useCallback(
+    (num: number) => {
+      if (checkupdown(num)) {
+        checkfront();
+      } else {
+        sethuman({ x: human.x + num, y: human.y, front: rightdirection() });
+      }
+    },
+    [checkupdown, checkfront, human.x, human.y, sethuman, rightdirection]
+  );
+
+  const checkgoal = useCallback(() => {
     if (human.x === 50 && human.y === 50) {
       alert('Goal!');
     }
-  };
+  }, [human]);
+
+  const movehuman = useCallback(() => {
+    const right = rightdirection();
+    // 右側の値を確認
+    if (right[0] !== 0) {
+      //進行方向が上下どちらかの場合
+      changedirectionupdown(right[0]);
+    } else {
+      changedirectionleftright(right[1]);
+    }
+    checkgoal();
+  }, [changedirectionleftright, changedirectionupdown, checkgoal, rightdirection]);
 
   const maketoweratodd = () => {
     const startCells: number[][] = [];
@@ -148,12 +151,10 @@ const Home = () => {
     const updatemaze = [...maze];
     for (const startCell of startCells) {
       const [x, y] = startCell;
-
       //ランダム方向選択
       const randomDirectionIndex = Math.floor(Math.random() * 4);
       const randomDirection = front[randomDirectionIndex];
       const [dx, dy] = randomDirection;
-
       //選択した方向のセルが迷路ないならそのセルの値を1に変更
       const newX = x + dx;
       const newY = y + dy;
@@ -166,8 +167,6 @@ const Home = () => {
   };
 
   const [searching, setSearching] = useState(false); // 探索中かどうかの状態を追加
-
-  // useEffectを使用して探索を実行し、結果を反映
   useEffect(() => {
     if (searching) {
       const interval = setInterval(() => {
@@ -193,17 +192,21 @@ const Home = () => {
             <div className={styles.cell} key={`${x}-${y}`}>
               {cell === 1 && <div className={styles.pillar} />}
               {searchhuman(x, y) === true &&
-                JSON.stringify(human.front) === JSON.stringify([0, 1]) &&
-                '▶︎'}
+                JSON.stringify(human.front) === JSON.stringify([0, 1]) && (
+                  <div className={styles.koma}>▶</div>
+                )}
               {searchhuman(x, y) === true &&
-                JSON.stringify(human.front) === JSON.stringify([1, 0]) &&
-                '▼'}
+                JSON.stringify(human.front) === JSON.stringify([1, 0]) && (
+                  <div className={styles.koma}>▼</div>
+                )}
               {searchhuman(x, y) === true &&
-                JSON.stringify(human.front) === JSON.stringify([0, -1]) &&
-                '◀︎'}
+                JSON.stringify(human.front) === JSON.stringify([0, -1]) && (
+                  <div className={styles.koma}>◀︎</div>
+                )}
               {searchhuman(x, y) === true &&
-                JSON.stringify(human.front) === JSON.stringify([-1, 0]) &&
-                '▲'}
+                JSON.stringify(human.front) === JSON.stringify([-1, 0]) && (
+                  <div className={styles.koma}>▲</div>
+                )}
             </div>
           ))
         )}
